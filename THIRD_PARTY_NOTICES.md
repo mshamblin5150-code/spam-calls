@@ -14,4 +14,4 @@ P-Stack v0.15.9. Copyright (c) 2026 Lauren Tan. MIT license, preserved at `.agen
 
 Both collections retain selected source text unchanged. Each router's `source-manifest.json` records upstream paths, exact commit, Git blob IDs, sizes, and SHA-256 hashes. Executable source, installer configuration, binaries, and images are omitted. Markdown may discuss executable commands; inclusion is not authorization to run them.
 
-These MIT licenses cover their respective third-party materials. The license for original repository work remains undecided.
+These MIT licenses cover their respective third-party materials. Original repository work is separately licensed under the root MIT LICENSE, approved by the owner on 2026-10-19. Upstream copyright notices remain intact.

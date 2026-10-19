@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spam Calls — offline synthetic planner</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/app/style.css">
+  <script type="module" src="/app/ui.mjs"></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><h1>Spam Calls</h1><p>Offline synthetic planner</p></div>
+    <nav aria-label="Demo data"><button id="export">Preview export</button><button id="import">Import demo</button><button id="reset">Reset demo</button></nav>
+  </header>
+  <p class="scope">Invented cases only. Nothing is sent to a broker.</p>
+  <div id="message" role="status" aria-live="polite"></div>
+  <div class="layout">
+    <aside>
+      <label for="case">Case</label><select id="case"></select>
+      <h2>Broker checklist</h2><div id="brokers"></div>
+      <p class="aside-note">All evidence is prewritten demo material. No contact details or attachments are collected.</p>
+    </aside>
+    <main>
+      <h2 id="broker-name"></h2><p id="broker-domain" class="domain"></p>
+      <ol class="steps" aria-label="Workflow"><li>Identify</li><li>Approve</li><li>Record</li></ol>
+      <form id="event-form">
+        <fieldset id="event-fields">
+          <legend class="visually-hidden">Record a simulated event</legend>
+          <label for="identity">Verify demo identity</label>
+          <select id="identity" required><option value="">Choose demo identity</option></select>
+          <p class="hint">Demo context check only; this is not authentication.</p>
+          <label for="event">Event</label><select id="event"></select>
+          <label for="artifact">Evidence</label><select id="artifact" required></select>
+          <p id="artifact-detail" class="hint">Choose a matching synthetic evidence fixture.</p>
+          <label class="approval"><input id="approval" type="checkbox" required><span id="approval-label"></span></label>
+          <button class="primary" type="submit">Record simulated event</button>
+        </fieldset>
+      </form>
+      <section class="timeline" aria-labelledby="timeline-heading"><h2 id="timeline-heading">Evidence timeline</h2><p id="item-status"></p><ol id="timeline"></ol></section>
+      <footer id="persistence">Local demo storage</footer>
+    </main>
+  </div>
+  <dialog id="data-dialog" aria-labelledby="data-title">
+    <h2 id="data-title"></h2><p id="data-help"></p>
+    <label for="data-text">Synthetic JSON</label><textarea id="data-text" spellcheck="false" maxlength="1000000"></textarea>
+    <p id="dialog-message" role="status"></p>
+    <div class="dialog-actions"><button id="close-dialog">Cancel</button><button id="data-action" class="primary"></button></div>
+  </dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title"><h2 id="reset-title">Reset demo history?</h2><p>This replaces every synthetic case's local history with an empty demo. Export first if you want to keep it.</p><div class="dialog-actions"><button id="cancel-reset">Keep history</button><button id="confirm-reset" class="danger">Reset all demo history</button></div></dialog>
+</body>
+</html>

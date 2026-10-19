@@ -25,7 +25,7 @@ The foundation deliberately adds no runtime dependencies or framework. Choose th
 
 ## Future decisions
 
-- Original-code license: owner decision remains open.
+- Original-code license: MIT, approved by the owner on 2026-10-19. See root LICENSE; separate upstream notices remain intact.
 - Proposed tracker: this repository's GitHub Issues, with PRs as a request surface off. Proposed triage labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. These have not been configured or treated as an accepted workflow.
 - Matt Pocock's setup workflow requires presenting a concrete tracker/configuration draft for user choice. Installing its source does not execute that configuration flow.
 - Any real-data or external-action capability requires a separately scoped request and design review. It is not part of this implementation plan.

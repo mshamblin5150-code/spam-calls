@@ -1,0 +1,6 @@
+# Preserve exact upstream bytes and inherited whitespace for provenance.
+.agents/skills/*/references/upstream/** -text -whitespace
+
+# Project-authored text uses LF across platforms.
+*.json text eol=lf
+*.ps1 text eol=lf

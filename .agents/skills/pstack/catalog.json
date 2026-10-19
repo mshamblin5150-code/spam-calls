@@ -1,0 +1,217 @@
+[
+  {
+    "path": "references/upstream/skills/architect/SKILL.md",
+    "selector": "architect"
+  },
+  {
+    "path": "references/upstream/skills/arena/SKILL.md",
+    "selector": "arena"
+  },
+  {
+    "path": "references/upstream/skills/automate-me/SKILL.md",
+    "selector": "automate-me"
+  },
+  {
+    "path": "references/upstream/skills/benchmark-checklist/SKILL.md",
+    "selector": "benchmark-checklist"
+  },
+  {
+    "path": "references/upstream/skills/blast-radius/SKILL.md",
+    "selector": "blast-radius"
+  },
+  {
+    "path": "references/upstream/skills/bro/SKILL.md",
+    "selector": "bro"
+  },
+  {
+    "path": "references/upstream/skills/correct/SKILL.md",
+    "selector": "correct"
+  },
+  {
+    "path": "references/upstream/skills/create-verification-skill/SKILL.md",
+    "selector": "create-verification-skill"
+  },
+  {
+    "path": "references/upstream/skills/figure-it-out/SKILL.md",
+    "selector": "figure-it-out"
+  },
+  {
+    "path": "references/upstream/skills/how/SKILL.md",
+    "selector": "how"
+  },
+  {
+    "path": "references/upstream/skills/interrogate/SKILL.md",
+    "selector": "interrogate"
+  },
+  {
+    "path": "references/upstream/skills/maintain-verification-skill/SKILL.md",
+    "selector": "maintain-verification-skill"
+  },
+  {
+    "path": "references/upstream/skills/make-bot-ui/SKILL.md",
+    "selector": "make-bot-ui"
+  },
+  {
+    "path": "references/upstream/skills/no-comments/SKILL.md",
+    "selector": "no-comments"
+  },
+  {
+    "path": "references/upstream/skills/poteto-mode/SKILL.md",
+    "selector": "poteto-mode"
+  },
+  {
+    "path": "references/upstream/skills/principle-attack-the-premise/SKILL.md",
+    "selector": "principle-attack-the-premise"
+  },
+  {
+    "path": "references/upstream/skills/principle-boundary-discipline/SKILL.md",
+    "selector": "principle-boundary-discipline"
+  },
+  {
+    "path": "references/upstream/skills/principle-build-the-lever/SKILL.md",
+    "selector": "principle-build-the-lever"
+  },
+  {
+    "path": "references/upstream/skills/principle-encode-lessons-in-structure/SKILL.md",
+    "selector": "principle-encode-lessons-in-structure"
+  },
+  {
+    "path": "references/upstream/skills/principle-exhaust-the-design-space/SKILL.md",
+    "selector": "principle-exhaust-the-design-space"
+  },
+  {
+    "path": "references/upstream/skills/principle-experience-first/SKILL.md",
+    "selector": "principle-experience-first"
+  },
+  {
+    "path": "references/upstream/skills/principle-explain-the-number/SKILL.md",
+    "selector": "principle-explain-the-number"
+  },
+  {
+    "path": "references/upstream/skills/principle-fix-root-causes/SKILL.md",
+    "selector": "principle-fix-root-causes"
+  },
+  {
+    "path": "references/upstream/skills/principle-foundational-thinking/SKILL.md",
+    "selector": "principle-foundational-thinking"
+  },
+  {
+    "path": "references/upstream/skills/principle-guard-the-context-window/SKILL.md",
+    "selector": "principle-guard-the-context-window"
+  },
+  {
+    "path": "references/upstream/skills/principle-laziness-protocol/SKILL.md",
+    "selector": "principle-laziness-protocol"
+  },
+  {
+    "path": "references/upstream/skills/principle-make-operations-idempotent/SKILL.md",
+    "selector": "principle-make-operations-idempotent"
+  },
+  {
+    "path": "references/upstream/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
+    "selector": "principle-migrate-callers-then-delete-legacy-apis"
+  },
+  {
+    "path": "references/upstream/skills/principle-minimize-reader-load/SKILL.md",
+    "selector": "principle-minimize-reader-load"
+  },
+  {
+    "path": "references/upstream/skills/principle-model-the-domain/SKILL.md",
+    "selector": "principle-model-the-domain"
+  },
+  {
+    "path": "references/upstream/skills/principle-never-block-on-the-human/SKILL.md",
+    "selector": "principle-never-block-on-the-human"
+  },
+  {
+    "path": "references/upstream/skills/principle-outcome-oriented-execution/SKILL.md",
+    "selector": "principle-outcome-oriented-execution"
+  },
+  {
+    "path": "references/upstream/skills/principle-prove-it-works/SKILL.md",
+    "selector": "principle-prove-it-works"
+  },
+  {
+    "path": "references/upstream/skills/principle-redesign-from-first-principles/SKILL.md",
+    "selector": "principle-redesign-from-first-principles"
+  },
+  {
+    "path": "references/upstream/skills/principle-separate-before-serializing-shared-state/SKILL.md",
+    "selector": "principle-separate-before-serializing-shared-state"
+  },
+  {
+    "path": "references/upstream/skills/principle-sequence-verifiable-units/SKILL.md",
+    "selector": "principle-sequence-verifiable-units"
+  },
+  {
+    "path": "references/upstream/skills/principle-subtract-before-you-add/SKILL.md",
+    "selector": "principle-subtract-before-you-add"
+  },
+  {
+    "path": "references/upstream/skills/principle-test-behavior-not-implementation/SKILL.md",
+    "selector": "principle-test-behavior-not-implementation"
+  },
+  {
+    "path": "references/upstream/skills/principle-type-system-discipline/SKILL.md",
+    "selector": "principle-type-system-discipline"
+  },
+  {
+    "path": "references/upstream/skills/recall/SKILL.md",
+    "selector": "recall"
+  },
+  {
+    "path": "references/upstream/skills/reflect/SKILL.md",
+    "selector": "reflect"
+  },
+  {
+    "path": "references/upstream/skills/setup-pstack/SKILL.md",
+    "selector": "setup-pstack"
+  },
+  {
+    "path": "references/upstream/skills/show-me-your-work/SKILL.md",
+    "selector": "show-me-your-work"
+  },
+  {
+    "path": "references/upstream/skills/swarm/SKILL.md",
+    "selector": "swarm"
+  },
+  {
+    "path": "references/upstream/skills/tdd/SKILL.md",
+    "selector": "tdd"
+  },
+  {
+    "path": "references/upstream/skills/teach/SKILL.md",
+    "selector": "teach"
+  },
+  {
+    "path": "references/upstream/skills/technical-writing/SKILL.md",
+    "selector": "technical-writing"
+  },
+  {
+    "path": "references/upstream/skills/typescript-best-practices/SKILL.md",
+    "selector": "typescript-best-practices"
+  },
+  {
+    "path": "references/upstream/skills/unslop/SKILL.md",
+    "selector": "unslop"
+  },
+  {
+    "path": "references/upstream/skills/why/SKILL.md",
+    "selector": "why"
+  },
+  {
+    "status": "dormant; not activated",
+    "selector": "automations/benny/skills/reproduce-and-fix-issues",
+    "path": "references/upstream/automations/benny/skills/reproduce-and-fix-issues/SKILL.md"
+  },
+  {
+    "status": "dormant; not activated",
+    "selector": "automations/benny/skills/setup-benny",
+    "path": "references/upstream/automations/benny/skills/setup-benny/SKILL.md"
+  },
+  {
+    "status": "dormant; not activated",
+    "selector": "automations/benny/skills/triage-issue-reports",
+    "path": "references/upstream/automations/benny/skills/triage-issue-reports/SKILL.md"
+  }
+]

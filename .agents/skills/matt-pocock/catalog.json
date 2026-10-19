@@ -1,0 +1,154 @@
+[
+  {
+    "path": "references/upstream/skills/engineering/ask-matt/SKILL.md",
+    "selector": "engineering/ask-matt"
+  },
+  {
+    "path": "references/upstream/skills/engineering/code-review/SKILL.md",
+    "selector": "engineering/code-review"
+  },
+  {
+    "path": "references/upstream/skills/engineering/codebase-design/SKILL.md",
+    "selector": "engineering/codebase-design"
+  },
+  {
+    "path": "references/upstream/skills/engineering/diagnosing-bugs/SKILL.md",
+    "selector": "engineering/diagnosing-bugs"
+  },
+  {
+    "path": "references/upstream/skills/engineering/domain-modeling/SKILL.md",
+    "selector": "engineering/domain-modeling"
+  },
+  {
+    "path": "references/upstream/skills/engineering/grill-with-docs/SKILL.md",
+    "selector": "engineering/grill-with-docs"
+  },
+  {
+    "path": "references/upstream/skills/engineering/implement-spec/SKILL.md",
+    "selector": "engineering/implement-spec"
+  },
+  {
+    "path": "references/upstream/skills/engineering/implement/SKILL.md",
+    "selector": "engineering/implement"
+  },
+  {
+    "path": "references/upstream/skills/engineering/improve-codebase-architecture/SKILL.md",
+    "selector": "engineering/improve-codebase-architecture"
+  },
+  {
+    "path": "references/upstream/skills/engineering/pr/SKILL.md",
+    "selector": "engineering/pr"
+  },
+  {
+    "path": "references/upstream/skills/engineering/prototype/SKILL.md",
+    "selector": "engineering/prototype"
+  },
+  {
+    "path": "references/upstream/skills/engineering/research/SKILL.md",
+    "selector": "engineering/research"
+  },
+  {
+    "path": "references/upstream/skills/engineering/retro/SKILL.md",
+    "selector": "engineering/retro"
+  },
+  {
+    "path": "references/upstream/skills/engineering/setup-matt-pocock-skills/SKILL.md",
+    "selector": "engineering/setup-matt-pocock-skills"
+  },
+  {
+    "path": "references/upstream/skills/engineering/tdd/SKILL.md",
+    "selector": "engineering/tdd"
+  },
+  {
+    "path": "references/upstream/skills/engineering/to-spec/SKILL.md",
+    "selector": "engineering/to-spec"
+  },
+  {
+    "path": "references/upstream/skills/engineering/to-tickets/SKILL.md",
+    "selector": "engineering/to-tickets"
+  },
+  {
+    "path": "references/upstream/skills/engineering/triage/SKILL.md",
+    "selector": "engineering/triage"
+  },
+  {
+    "path": "references/upstream/skills/engineering/wayfinder/SKILL.md",
+    "selector": "engineering/wayfinder"
+  },
+  {
+    "path": "references/upstream/skills/engineering/wizard/SKILL.md",
+    "selector": "engineering/wizard"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/chief-of-staff/SKILL.md",
+    "selector": "in-progress/chief-of-staff"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/claude-handoff/SKILL.md",
+    "selector": "in-progress/claude-handoff"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/loop-me/SKILL.md",
+    "selector": "in-progress/loop-me"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/setup-ts-deep-modules/SKILL.md",
+    "selector": "in-progress/setup-ts-deep-modules"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/writing-beats/SKILL.md",
+    "selector": "in-progress/writing-beats"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/writing-fragments/SKILL.md",
+    "selector": "in-progress/writing-fragments"
+  },
+  {
+    "path": "references/upstream/skills/in-progress/writing-shape/SKILL.md",
+    "selector": "in-progress/writing-shape"
+  },
+  {
+    "path": "references/upstream/skills/misc/git-guardrails-claude-code/SKILL.md",
+    "selector": "misc/git-guardrails-claude-code"
+  },
+  {
+    "path": "references/upstream/skills/misc/migrate-to-shoehorn/SKILL.md",
+    "selector": "misc/migrate-to-shoehorn"
+  },
+  {
+    "path": "references/upstream/skills/misc/scaffold-exercises/SKILL.md",
+    "selector": "misc/scaffold-exercises"
+  },
+  {
+    "path": "references/upstream/skills/misc/setup-pre-commit/SKILL.md",
+    "selector": "misc/setup-pre-commit"
+  },
+  {
+    "path": "references/upstream/skills/productivity/grill-me/SKILL.md",
+    "selector": "productivity/grill-me"
+  },
+  {
+    "path": "references/upstream/skills/productivity/grilling/SKILL.md",
+    "selector": "productivity/grilling"
+  },
+  {
+    "path": "references/upstream/skills/productivity/handoff/SKILL.md",
+    "selector": "productivity/handoff"
+  },
+  {
+    "path": "references/upstream/skills/productivity/teach/SKILL.md",
+    "selector": "productivity/teach"
+  },
+  {
+    "path": "references/upstream/skills/productivity/to-questionnaire/SKILL.md",
+    "selector": "productivity/to-questionnaire"
+  },
+  {
+    "path": "references/upstream/skills/productivity/wait-what/SKILL.md",
+    "selector": "productivity/wait-what"
+  },
+  {
+    "path": "references/upstream/skills/productivity/writing-for-agents/SKILL.md",
+    "selector": "productivity/writing-for-agents"
+  }
+]

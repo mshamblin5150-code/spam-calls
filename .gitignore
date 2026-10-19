@@ -1,0 +1,25 @@
+# Local secrets and private case material
+.env
+.env.*
+!.env.example
+credentials*
+*.pem
+*.key
+*.pfx
+*.p12
+private/
+local-data/
+evidence/
+exports/
+.scratch/
+
+# Generated files and editor state
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

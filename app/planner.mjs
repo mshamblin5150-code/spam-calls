@@ -3,8 +3,8 @@ export const cases = Object.freeze([
   Object.freeze({ id: 'demo-b', label: 'Demo Case B' }),
 ]);
 export const brokers = Object.freeze([
-  Object.freeze({ id: 'cedar', label: 'Cedar Directory', domain: 'cedar.example' }),
-  Object.freeze({ id: 'harbor', label: 'Harbor Index', domain: 'harbor.example' }),
+  Object.freeze({ id: 'cedar', label: 'Cedar Directory', domain: 'cedar.example', followUpDate: '2026-10-26' }),
+  Object.freeze({ id: 'harbor', label: 'Harbor Index', domain: 'harbor.example', followUpDate: '2026-10-28' }),
 ]);
 
 const kinds = {
@@ -47,7 +47,7 @@ function appendValidated(state, event) {
     requireValue(previous && event.supersedes === previous.id, 'Correction must supersede the last event for this plan item.');
   } else {
     requireValue(event.supersedes === null, 'Only a correction may supersede an event.');
-    requireValue(kind.from.includes(statusFor(state, event.caseId, event.brokerId)), 'Unsupported status transition.');
+    requireValue(kind.from.includes(validatedStatus(state, event.caseId, event.brokerId)), 'Unsupported status transition.');
   }
   return { ...state, events: [...state.events, { ...event }] };
 }
@@ -66,9 +66,14 @@ export function recordEvent(state, command) {
   return appendValidated(valid, { schemaVersion: 1, supersedes: null, ...command });
 }
 
-export function statusFor(state, caseId, brokerId) {
+function validatedStatus(state, caseId, brokerId) {
   const last = state.events.findLast(event => event.caseId === caseId && event.brokerId === brokerId);
   return last ? kinds[last.type].status : 'planned';
+}
+
+export function statusFor(state, caseId, brokerId) {
+  requireValue(cases.some(item => item.id === caseId) && brokers.some(item => item.id === brokerId), 'Unknown plan item.');
+  return validatedStatus(validateState(state), caseId, brokerId);
 }
 
 export function exportState(state) { return JSON.stringify(validateState(state), null, 2); }
@@ -80,7 +85,7 @@ export function importState(state, text) {
   for (const event of incoming.events) {
     const existing = merged.events.find(item => item.id === event.id);
     if (existing) {
-      requireValue(JSON.stringify(existing) === JSON.stringify(event), 'Conflicting event ID; import was not applied.');
+      requireValue(eventKeys.every(key => existing[key] === event[key]), 'Conflicting event ID; import was not applied.');
     } else {
       requireValue(merged.events.length < 1000, 'Event limit is 1000.');
       merged = appendValidated(merged, event);

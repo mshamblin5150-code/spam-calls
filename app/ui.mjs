@@ -35,7 +35,7 @@ function render() {
   $('brokers').replaceChildren(...brokers.map(item => {
     const button = document.createElement('button'); button.className = 'broker'; button.type = 'button';
     button.setAttribute('aria-pressed', String(item.id === brokerId));
-    for (const [tag, cls, text] of [['strong', '', item.label], ['span', 'domain', item.domain], ['span', 'status', state ? `Simulated: ${statusFor(state, caseId, item.id)}` : 'Storage unavailable']]) {
+    for (const [tag, cls, text] of [['strong', '', item.label], ['span', 'domain', item.domain], ['span', 'status', state ? `Simulated: ${statusFor(state, caseId, item.id)}` : 'Storage unavailable'], ['span', 'status', `Demo follow-up: ${item.followUpDate} · display only`]]) {
       const node = document.createElement(tag); node.className = cls; node.textContent = text; button.append(node);
     }
     button.addEventListener('click', () => { brokerId = item.id; resetForm(); render(); $('broker-name').tabIndex = -1; $('broker-name').focus(); });

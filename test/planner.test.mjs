@@ -79,3 +79,16 @@ test('malformed, unsupported, forged, conflicting and oversized imports cannot m
     assert.equal(exportState(state), before);
   }
 });
+
+test('public status lookup rejects invented confirmation without validated history', () => {
+  assert.throws(() => statusFor({ events: [{ caseId: 'demo-a', brokerId: 'cedar', type: 'confirmation' }] }, 'demo-a', 'cedar'), /unknown or missing fields/);
+  assert.equal(statusFor(completedWorkflow(), 'demo-a', 'cedar'), 'simulated-confirmed');
+});
+
+test('reordering imported JSON fields still deduplicates an identical event', () => {
+  const original = completedWorkflow();
+  const reordered = { ...original, events: original.events.map(event => Object.fromEntries(Object.entries(event).reverse())) };
+  const merged = importState(original, JSON.stringify(reordered));
+  assert.deepEqual(merged.events.map(event => event.id), ['event-001', 'event-002', 'event-003']);
+  assert.equal(statusFor(merged, 'demo-a', 'cedar'), 'simulated-confirmed');
+});

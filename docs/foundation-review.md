@@ -1,5 +1,7 @@
 # Foundation review, 2026-10-19
 
+Historical review of the initial foundation. The owner subsequently approved MIT and authorized the prototype described in `prototype-spec.md`. See `prototype-review.md` for the current milestone; the original baseline's open decisions below record their state at the time.
+
 ## Scope and publication review
 
 The target `C:\codeing\spam-calls` was verified empty and separate from other projects. Git was initialized on `main`. The connected GitHub profile and the repository creation form both identified `mshamblin5150-code`. Commit authorship uses that public login and GitHub's numeric-ID noreply address, not a personal email.

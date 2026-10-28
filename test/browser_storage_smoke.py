@@ -115,6 +115,7 @@ class StorageUI(unittest.TestCase):
         expect(self.page.locator("#dialog-message")).to_have_text(
             "Validated preview: 2 total synthetic events after import. Existing history is still unchanged.")
         expect(self.page.get_by_role("button", name="Apply validated import")).to_be_visible()
+        self.assertEqual(json.loads(self.page.locator("#data-text").input_value()), payload)
 
     def stored_text(self):
         return self.page.evaluate(f"localStorage.getItem({json.dumps(STORAGE_KEY)})")

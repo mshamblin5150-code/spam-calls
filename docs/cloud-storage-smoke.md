@@ -45,7 +45,7 @@ No application modules are mocked.
 
 ## Observed results
 
-Six browser checks passed on 2026-10-28 (9.009s):
+Six browser checks passed on 2026-10-28 (9.509s):
 
 - Corrupt synthetic JSON disables recording/import/export. Cancelling reset
   preserves the corrupt bytes; explicitly confirming reset restores an empty
@@ -56,8 +56,8 @@ Six browser checks passed on 2026-10-28 (9.009s):
   the visible status, timeline, and exported history unchanged, and retains the
   same history after reload. Retrying then appends the next valid event while
   retaining the original and advances the visible status and timeline.
-- Import preview shows the merged two-event history while persisted bytes,
-  visible status, and timeline remain unchanged. Cancellation preserves the
+- Import preview's displayed JSON equals the complete merged two-event payload
+  while persisted bytes, visible status, and timeline remain unchanged. Cancellation preserves the
   original export across reload. Explicit apply advances the visible history
   and persists the exact events; repeated import retains one copy across reload.
 - Editing a validated preview returns the action to preview. Malformed JSON

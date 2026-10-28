@@ -1,5 +1,8 @@
 # Verifier hidden-source correctness proposal
 
+Historical proposal: the later approved regression/verifier results and local
+integration are recorded in [publication candidate evidence](publication-candidate.md).
+
 ## Scope and preserved evidence
 
 This proposal branches from `c3913bfe423aede57a9dd0b5a6bdc8fe342b0861` as

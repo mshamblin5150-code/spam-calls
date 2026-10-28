@@ -1,5 +1,8 @@
 # Temporary PowerShell runtime proposal
 
+Historical proposal: the approved execution and subsequent verifier correction
+are recorded in [publication candidate evidence](publication-candidate.md).
+
 Proposal only, prepared 2026-10-28. Nothing below has been executed. Installing
 or running this runtime is pending separate authorization; publication remains
 outside this task.

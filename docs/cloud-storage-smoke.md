@@ -1,5 +1,8 @@
 # Cloud storage and import UI smoke checks
 
+Historical checkpoint: this records the separate smoke-test work. See
+[publication candidate evidence](publication-candidate.md) for integrated status.
+
 ## Assignment and baseline
 
 On 2026-10-28, the cloud checkout was clean at

@@ -316,7 +316,7 @@ class StorageUI(unittest.TestCase):
                             and selector in event["controls"] for event in events), events)
 
     def modal_pointer_check(self, mode):
-        # A wide viewport keeps all four target centers outside the dialog box.
+        # A wide viewport keeps every tested target center outside the dialog box.
         # These are CSS viewport coordinates, not a desktop/native-window probe.
         self.page.set_viewport_size({"width": 2000, "height": 1600})
         self.open_app()
@@ -330,6 +330,8 @@ class StorageUI(unittest.TestCase):
         self.page.locator("#artifact").select_option("cedar-issue")
         self.page.locator("#approval").check()
         selectors = ["#export", "#brokers .broker:nth-child(2)", "#approval", "#event-form button[type=submit]"]
+        if mode == "export":
+            selectors.append("#reset")
         points = {selector: self.pointer_point(selector) for selector in selectors}
         # Passive capture observers never cancel, dispatch, or activate events.
         self.page.evaluate("""selectors => {
@@ -398,7 +400,16 @@ class StorageUI(unittest.TestCase):
         expect(self.page.locator("#data-title")).to_have_text("Preview synthetic export")
         self.assertTrue(self.page.locator("#data-dialog").evaluate("node => node.matches(':modal')"))
         self.page.mouse.click(**self.pointer_point("#close-dialog"))
-        print(f"Pointer-only {mode}: 4 background probes blocked with unchanged state; all 4 targets live after cancel", flush=True)
+        if mode == "export":
+            saved = self.pointer_state()["stored"]
+            self.assert_live_pointer("#reset", points["#reset"])
+            self.assertEqual(self.pointer_state()["modal"], ["reset-dialog"])
+            self.assertEqual(self.pointer_state()["stored"], saved)
+            self.page.mouse.click(**self.pointer_point("#cancel-reset"))
+            self.assertEqual(self.pointer_state()["modal"], [])
+            self.assertEqual(self.pointer_state()["stored"], saved)
+        count = len(selectors)
+        print(f"Pointer-only {mode}: {count} background probes blocked with unchanged state; all {count} targets live after cancel", flush=True)
 
     def test_export_modal_excludes_tested_background_pointer_input(self):
         self.modal_pointer_check("export")

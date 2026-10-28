@@ -13,7 +13,8 @@ Exact limited claim: in fresh nonpersistent headless Chromium contexts, real
 browser mouse clicks at the specified background-control coordinates do not
 activate those controls or change their associated state while export, initial
 import, or reset is an active native HTML modal. The same controls receive
-trusted input and perform their actions after cancellation.
+trusted input and perform their actions after cancellation. The export scenario
+also checks that its background Reset demo button cannot open a second modal.
 
 This is tested pointer interaction only. It establishes neither keyboard
 exclusion, accessibility-tree behavior, native-window focus destination/reentry,
@@ -44,7 +45,7 @@ Full browser suite: `python test/browser_storage_smoke.py`.
 Default domain/storage/server suite: `npm test`.
 
 Each modal scenario uses a fresh context and a 2000×1600 CSS viewport so the
-four target centers lie outside the foreground dialog rectangle and inside
+tested target centers lie outside the foreground dialog rectangle and inside
 the viewport. Immediately before each blocked click, current control and dialog
 bounds are re-read: the recorded point must still lie inside its intended
 control and outside the current dialog. All targets must be visible and enabled.
@@ -57,12 +58,13 @@ submit would have a real observable persistence effect.
 | `#brokers .broker:nth-child(2)` | Changes Cedar Directory to Harbor Index |
 | `#approval` | Toggles off and back on |
 | `#event-form button[type=submit]` | Saves the prepared synthetic issue, retaining the original submission |
+| `#reset` (export scenario only) | Opens exactly the reset modal; Keep history closes it without changing stored history |
 
 After opening each modal normally, the test verifies `:modal` and its identity.
 It then uses `page.mouse.click(x, y)` at each recorded target center. Capture
 listeners only record events and are explicitly passive. Every probe must
 produce trusted `pointerdown` and `click` events, with the recorded events
-targeting the active dialog rather than any of the four background controls.
+targeting the active dialog rather than any tested background control.
 The case, broker, identity, event, artifact, approval, visible status/timeline,
 stored history bytes, and modal set must remain unchanged.
 
@@ -85,14 +87,19 @@ inferring it from an `inert` attribute or actionability timeout.
 
 ## Observed outcome and limits
 
-The initial focused run passed all three tests in 6.298s on headless Chromium
-154.0.8037.57. That covered 12 blocked background-target probes across the
-three modal scenarios and successful post-cancel liveness for all four targets
-in each scenario. It did not demonstrate a product defect or require a product
+The initial four-target version passed all three focused tests in 6.298s on
+headless Chromium 154.0.8037.57. That covered 12 blocked background-target probes
+and successful post-cancel liveness. The final combined candidate adds only the
+known Reset demo/second-dialog case while export is active: five targets in
+export, four in import, and four in reset, for 13 blocked probes. Reset's trusted
+post-cancel click must open exactly `reset-dialog`, and Keep history must close
+it with the stored bytes unchanged. No other controls or viewports were added.
+This did not demonstrate a product defect or require a product
 fix. This is behavior coverage of an already implemented browser boundary,
 not a claimed test-first product red/green fix.
 
-The full browser suite subsequently passed all nine tests in 14.362s, including
+The added Reset/export case passed its focused run in 4.122s. The final combined
+browser suite passed all nine tests in 22.601s, including
 the six previously merged storage/import checks and these three pointer checks.
 The unchanged Node suite also passed: 14 tests, 0 failures. No PowerShell runtime
 was downloaded or executed for this slice; verifier inputs are unchanged.

@@ -1,4 +1,4 @@
-"""Opt-in Chromium storage UI checks; see docs/cloud-storage-smoke.md."""
+"""Opt-in Chromium storage/import UI checks; see docs/cloud-storage-smoke.md."""
 
 from contextlib import ExitStack
 import json
@@ -98,6 +98,50 @@ class StorageUI(unittest.TestCase):
         expect(self.page.get_by_role("button", name="Import demo")).to_be_disabled()
         expect(self.page.locator("#persistence")).to_contain_text("Local storage unavailable")
 
+    def import_payload(self, before):
+        # Add one known fixture event to the history recorded through the UI.
+        # Equal timestamps are valid; this avoids relying on the runner's date.
+        return {"schemaVersion": 1, "fixtureSet": "demo-v1", "events": [*before, {
+            "schemaVersion": 1, "id": "event-import-awaiting",
+            "timestamp": before[0]["timestamp"], "caseId": "demo-a",
+            "brokerId": "cedar", "identity": "demo-a", "approved": True,
+            "type": "awaiting", "artifactId": "cedar-awaiting", "supersedes": None,
+        }]}
+
+    def preview_import(self, payload):
+        self.page.get_by_role("button", name="Import demo").click()
+        self.page.locator("#data-text").fill(json.dumps(payload))
+        self.page.get_by_role("button", name="Preview import", exact=True).click()
+        expect(self.page.locator("#dialog-message")).to_have_text(
+            "Validated preview: 2 total synthetic events after import. Existing history is still unchanged.")
+        expect(self.page.get_by_role("button", name="Apply validated import")).to_be_visible()
+
+    def stored_text(self):
+        return self.page.evaluate(f"localStorage.getItem({json.dumps(STORAGE_KEY)})")
+
+    def assert_submission_visible(self):
+        expect(self.page.locator("#item-status")).to_contain_text("Simulated status: simulated-submission.")
+        expect(self.page.locator("#timeline li")).to_have_count(1)
+        expect(self.page.locator("#timeline li strong")).to_have_text("Simulated submission")
+
+    def assert_import_applied(self, payload):
+        expect(self.page.locator("#data-dialog")).not_to_be_visible()
+        expect(self.page.locator("#message")).to_have_text(
+            "Validated synthetic history imported. Duplicate events were kept once.")
+        expect(self.page.locator("#item-status")).to_contain_text("Simulated status: awaiting-simulated-confirmation.")
+        expect(self.page.locator("#timeline li strong")).to_have_text([
+            "Simulated submission", "Await simulated confirmation",
+        ])
+        self.assertEqual(self.exported_events(), payload["events"])
+
+    def fail_storage_writes(self):
+        # Fault injection stays at the browser storage boundary, not app internals.
+        self.page.evaluate("""() => {
+            Storage.prototype.setItem = function() {
+                throw new DOMException('Synthetic quota exceeded', 'QuotaExceededError');
+            };
+        }""")
+
     def test_corrupt_storage_requires_explicit_reset_and_recovers(self):
         # Seed only this disposable context; the app is responsible for recovery.
         self.open_app(f"localStorage.setItem({json.dumps(STORAGE_KEY)}, '{{broken');")
@@ -132,19 +176,12 @@ class StorageUI(unittest.TestCase):
         expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
         before = self.exported_events()
         self.assertEqual(len(before), 1)
-        # Fault injection stays at the browser storage boundary, not app internals.
-        self.page.evaluate("""() => {
-            Storage.prototype.setItem = function() {
-                throw new DOMException('Synthetic quota exceeded', 'QuotaExceededError');
-            };
-        }""")
+        self.fail_storage_writes()
         self.submit("awaiting")
         expect(self.page.locator("#message")).to_have_text("Synthetic quota exceeded")
         expect(self.page.locator("#approval")).not_to_be_checked()
         expect(self.page.get_by_role("button", name="Record simulated event")).to_be_enabled()
-        expect(self.page.locator("#item-status")).to_contain_text("Simulated status: simulated-submission.")
-        expect(self.page.locator("#timeline li")).to_have_count(1)
-        expect(self.page.locator("#timeline li strong")).to_have_text("Simulated submission")
+        self.assert_submission_visible()
         self.assertEqual(self.exported_events(), before)
         self.page.reload()  # removes the injected failure and reopens persisted history
         expect(self.page.locator("#broker-name")).to_have_text("Cedar Directory")
@@ -158,6 +195,84 @@ class StorageUI(unittest.TestCase):
         events = self.exported_events()
         self.assertEqual([event["type"] for event in events], ["submission", "awaiting"])
         self.assertEqual(events[0], before[0])
+
+    def test_import_preview_cancel_apply_and_repeat(self):
+        self.open_app()
+        self.submit()
+        expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
+        before = self.exported_events()
+        payload = self.import_payload(before)
+        saved = self.stored_text()
+        self.preview_import(payload)
+        self.assert_submission_visible()
+        self.assertEqual(self.stored_text(), saved)
+        self.page.get_by_role("button", name="Cancel", exact=True).click()
+        self.assertEqual(self.exported_events(), before)
+        self.page.reload()
+        self.assertEqual(self.exported_events(), before)
+        self.preview_import(payload)
+        self.page.get_by_role("button", name="Apply validated import").click()
+        self.assert_import_applied(payload)
+        self.page.reload()
+        self.assertEqual(self.exported_events(), payload["events"])
+        # Repeating the identical import must retain the exact history once.
+        self.preview_import(payload)
+        self.page.get_by_role("button", name="Apply validated import").click()
+        self.assert_import_applied(payload)
+        self.page.reload()
+        self.assertEqual(self.exported_events(), payload["events"])
+
+    def test_import_edit_invalidates_preview_and_errors_allow_recovery(self):
+        self.open_app()
+        self.submit()
+        expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
+        before = self.exported_events()
+        payload = self.import_payload(before)
+        saved = self.stored_text()
+        self.preview_import(payload)
+        for text, error in (
+            ("{broken", "Invalid synthetic JSON. Nothing was changed."),
+            (json.dumps({**payload, "unknown": True}), "State has unknown or missing fields."),
+        ):
+            with self.subTest(error=error):
+                self.page.locator("#data-text").fill(text)
+                expect(self.page.get_by_role("button", name="Preview import", exact=True)).to_be_visible()
+                expect(self.page.locator("#dialog-message")).to_be_empty()
+                self.page.get_by_role("button", name="Preview import", exact=True).click()
+                expect(self.page.locator("#dialog-message")).to_have_text(error)
+                expect(self.page.locator("#data-dialog")).to_be_visible()
+                self.assert_submission_visible()
+                self.assertEqual(self.stored_text(), saved)
+        self.page.get_by_role("button", name="Cancel", exact=True).click()
+        self.assertEqual(self.exported_events(), before)
+        self.preview_import(payload)
+        self.page.get_by_role("button", name="Apply validated import").click()
+        self.assert_import_applied(payload)
+        self.page.reload()
+        self.assertEqual(self.exported_events(), payload["events"])
+
+    def test_import_write_failure_requires_new_preview_and_preserves_history(self):
+        self.open_app()
+        self.submit()
+        expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
+        before = self.exported_events()
+        payload = self.import_payload(before)
+        saved = self.stored_text()
+        self.preview_import(payload)
+        self.fail_storage_writes()
+        self.page.get_by_role("button", name="Apply validated import").click()
+        expect(self.page.locator("#dialog-message")).to_have_text("Synthetic quota exceeded")
+        expect(self.page.locator("#data-dialog")).to_be_visible()
+        expect(self.page.get_by_role("button", name="Preview import", exact=True)).to_be_visible()
+        self.assert_submission_visible()
+        self.assertEqual(self.stored_text(), saved)
+        self.page.get_by_role("button", name="Cancel", exact=True).click()
+        self.assertEqual(self.exported_events(), before)
+        self.page.reload()  # clears the fault injection, preserving only actual saved data
+        self.assertEqual(self.exported_events(), before)
+        self.preview_import(payload)
+        self.page.get_by_role("button", name="Apply validated import").click()
+        self.assert_import_applied(payload)
 
 
 if __name__ == "__main__":

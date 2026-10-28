@@ -160,6 +160,64 @@ class StorageUI(unittest.TestCase):
         expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
         self.assertEqual(len(self.exported_events()), 1)
 
+    def test_valid_history_reset_cancel_confirm_reload_and_reopen(self):
+        self.open_app()
+        self.submit()
+        self.assert_submission_visible()
+        self.submit("awaiting")
+        expect(self.page.locator("#item-status")).to_contain_text(
+            "Simulated status: awaiting-simulated-confirmation.")
+        expect(self.page.locator("#timeline li strong")).to_have_text([
+            "Simulated submission", "Await simulated confirmation",
+        ])
+        before = self.stored_text()
+        self.assertEqual([event["type"] for event in json.loads(before)["events"]],
+                         ["submission", "awaiting"])
+        # This extra synthetic key belongs only to the fresh disposable context.
+        sentinel_key = "synthetic-reset-unrelated"
+        sentinel_value = "keep-this-synthetic-value"
+        self.page.evaluate("([key, value]) => localStorage.setItem(key, value)",
+                           [sentinel_key, sentinel_value])
+
+        def assert_empty_history():
+            expect(self.page.locator("#item-status")).to_contain_text("Simulated status: planned.")
+            expect(self.page.locator("#timeline li")).to_have_count(1)
+            expect(self.page.locator("#timeline li")).to_have_text("No simulated events yet.")
+            self.assertEqual(self.exported_events(), [])
+
+        def stored_values():
+            return self.page.evaluate("() => Object.fromEntries(Object.entries(localStorage))")
+
+        self.page.get_by_role("button", name="Reset demo", exact=True).click()
+        expect(self.page.locator("#reset-dialog")).to_be_visible()
+        self.page.get_by_role("button", name="Keep history").click()
+        expect(self.page.locator("#reset-dialog")).not_to_be_visible()
+        self.assertEqual(stored_values(), {STORAGE_KEY: before, sentinel_key: sentinel_value})
+        expect(self.page.locator("#timeline li strong")).to_have_text([
+            "Simulated submission", "Await simulated confirmation",
+        ])
+
+        self.page.get_by_role("button", name="Reset demo", exact=True).click()
+        self.page.get_by_role("button", name="Reset all demo history").click()
+        expect(self.page.locator("#reset-dialog")).not_to_be_visible()
+        expect(self.page.locator("#message")).to_have_text(
+            "All demo history reset. No external data was changed.")
+        assert_empty_history()
+        empty_bytes = self.stored_text()
+        self.assertEqual(json.loads(empty_bytes),
+                         {"schemaVersion": 1, "fixtureSet": "demo-v1", "events": []})
+        self.assertEqual(stored_values(), {STORAGE_KEY: empty_bytes, sentinel_key: sentinel_value})
+
+        self.page.reload()
+        assert_empty_history()
+        self.assertEqual(stored_values(), {STORAGE_KEY: empty_bytes, sentinel_key: sentinel_value})
+        self.page.get_by_role("button", name="Reset demo", exact=True).click()
+        expect(self.page.locator("#reset-dialog")).to_be_visible()
+        self.page.get_by_role("button", name="Keep history").click()
+        expect(self.page.locator("#reset-dialog")).not_to_be_visible()
+        assert_empty_history()
+        self.assertEqual(stored_values(), {STORAGE_KEY: empty_bytes, sentinel_key: sentinel_value})
+
     def test_unavailable_storage_reports_failure_including_reset(self):
         self.open_app("Object.defineProperty(window, 'localStorage', {get() {"
                       "throw new DOMException('Synthetic storage denied', 'SecurityError'); }});")

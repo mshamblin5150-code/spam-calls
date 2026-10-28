@@ -35,8 +35,9 @@ dependencies must already be available. This proposal adapts extraction to a
 fresh temporary directory without system registration.
 [Microsoft binary archive guidance](https://learn.microsoft.com/en-us/powershell/scripting/install/alternate-install-methods#install-from-binary-archives).
 
-The runner already has `libc6`, `libgcc-s1`, `libgssapi-krb5-2`, `libicu76`,
-`libssl3t64`, `libstdc++6`, and `zlib1g`, observed with `dpkg-query -W`.
+The runner already has `ca-certificates`, `libc6`, `libgcc-s1`,
+`libgssapi-krb5-2`, `libicu76`, `libssl3t64`, `libstdc++6`, `tzdata`, and
+`zlib1g`, observed with `dpkg-query -W`.
 That matches the Debian 13 native dependency set in Microsoft's .NET guidance,
 but runtime compatibility is untested. The archive supplies its managed
 runtime; no SDK or package installation is proposed. Stop if startup reports a

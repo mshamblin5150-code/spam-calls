@@ -1,4 +1,4 @@
-"""Opt-in Chromium storage/import UI checks; see docs/cloud-storage-smoke.md."""
+"""Opt-in synthetic UI checks; see docs/cloud-storage-smoke.md and docs/dialog-pointer-exclusion.md."""
 
 from contextlib import ExitStack
 import json
@@ -274,6 +274,151 @@ class StorageUI(unittest.TestCase):
         self.preview_import(payload)
         self.page.get_by_role("button", name="Apply validated import").click()
         self.assert_import_applied(payload)
+
+    def pointer_state(self):
+        # Deliberately excludes activeElement, browser chrome, and native focus.
+        return self.page.evaluate("""() => ({
+            case: document.getElementById('case').value,
+            broker: document.getElementById('broker-name').textContent,
+            identity: document.getElementById('identity').value,
+            event: document.getElementById('event').value,
+            artifact: document.getElementById('artifact').value,
+            approval: document.getElementById('approval').checked,
+            timeline: document.getElementById('timeline').textContent,
+            status: document.getElementById('item-status').textContent,
+            stored: localStorage.getItem('spam-calls-synthetic-demo-v1'),
+            modal: [...document.querySelectorAll('dialog:modal')].map(node => node.id),
+        })""")
+
+    def pointer_point(self, selector):
+        control = self.page.locator(selector)
+        expect(control).to_be_visible()
+        expect(control).to_be_enabled()
+        box = control.bounding_box()
+        self.assertIsNotNone(box)
+        point = {"x": box["x"] + box["width"] / 2, "y": box["y"] + box["height"] / 2}
+        viewport = self.page.viewport_size
+        self.assertTrue(0 < point["x"] < viewport["width"])
+        self.assertTrue(0 < point["y"] < viewport["height"])
+        return point
+
+    def mouse_probe(self, point):
+        self.page.evaluate("window.pointerProbeEvents.length = 0")
+        self.page.mouse.click(point["x"], point["y"])
+        events = self.page.evaluate("window.pointerProbeEvents")
+        self.assertTrue(any(event["type"] == "pointerdown" and event["trusted"] for event in events), events)
+        self.assertTrue(any(event["type"] == "click" and event["trusted"] for event in events), events)
+        return events
+
+    def assert_live_pointer(self, selector, point):
+        events = self.mouse_probe(point)
+        self.assertTrue(any(event["type"] == "click" and event["trusted"]
+                            and selector in event["controls"] for event in events), events)
+
+    def modal_pointer_check(self, mode):
+        # A wide viewport keeps every tested target center outside the dialog box.
+        # These are CSS viewport coordinates, not a desktop/native-window probe.
+        self.page.set_viewport_size({"width": 2000, "height": 1600})
+        self.open_app()
+        self.submit()
+        expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
+        original = self.exported_events()
+        self.assertEqual(len(original), 1)
+        # If a background submit leaks, this valid command would append an event.
+        self.page.locator("#identity").select_option("demo-a")
+        self.page.locator("#event").select_option("issue")
+        self.page.locator("#artifact").select_option("cedar-issue")
+        self.page.locator("#approval").check()
+        selectors = ["#export", "#brokers .broker:nth-child(2)", "#approval", "#event-form button[type=submit]"]
+        if mode == "export":
+            selectors.append("#reset")
+        points = {selector: self.pointer_point(selector) for selector in selectors}
+        # Passive capture observers never cancel, dispatch, or activate events.
+        self.page.evaluate("""selectors => {
+            window.pointerProbeEvents = [];
+            for (const type of ['pointerdown', 'pointerup', 'click', 'input', 'change']) {
+                document.addEventListener(type, event => {
+                    const node = event.target instanceof Element ? event.target : null;
+                    window.pointerProbeEvents.push({
+                        type: event.type, trusted: event.isTrusted,
+                        controls: selectors.filter(selector => node?.closest(selector)),
+                        dialog: node?.closest('dialog')?.id ?? null,
+                    });
+                }, {capture: true, passive: true});
+            }
+        }""", selectors)
+        self.page.get_by_role("button", name={
+            "export": "Preview export", "import": "Import demo", "reset": "Reset demo",
+        }[mode], exact=True).click()
+        dialog_id = "reset-dialog" if mode == "reset" else "data-dialog"
+        dialog = self.page.locator("#" + dialog_id)
+        expect(dialog).to_be_visible()
+        self.assertTrue(dialog.evaluate("node => node.matches(':modal')"))
+        before = self.pointer_state()
+        self.assertEqual(before["modal"], [dialog_id])
+        for selector, point in points.items():
+            with self.subTest(mode=mode, background_control=selector):
+                control = self.page.locator(selector)
+                expect(control).to_be_visible()
+                expect(control).to_be_enabled()
+                current = control.bounding_box()
+                rectangle = dialog.bounding_box()
+                self.assertIsNotNone(current)
+                self.assertIsNotNone(rectangle)
+                self.assertTrue(current["x"] < point["x"] < current["x"] + current["width"]
+                                and current["y"] < point["y"] < current["y"] + current["height"],
+                                "Recorded point no longer lies inside the current background control")
+                self.assertFalse(rectangle["x"] <= point["x"] <= rectangle["x"] + rectangle["width"]
+                                 and rectangle["y"] <= point["y"] <= rectangle["y"] + rectangle["height"],
+                                 "Target center is covered by the dialog, not an outside-dialog probe")
+                events = self.mouse_probe(point)
+                self.assertTrue(all(event["controls"] == [] for event in events), events)
+                self.assertTrue(all(event["dialog"] == dialog_id for event in events), events)
+                self.assertEqual(self.pointer_state(), before)
+
+        cancel = "#cancel-reset" if mode == "reset" else "#close-dialog"
+        self.page.mouse.click(**self.pointer_point(cancel))
+        expect(dialog).not_to_be_visible()
+        self.assertEqual(self.pointer_state()["modal"], [])
+        # Each exact target must receive trusted input and perform its normal
+        # action after cancellation; otherwise blocked probes could be vacuous.
+        self.assert_live_pointer("#approval", points["#approval"])
+        expect(self.page.locator("#approval")).not_to_be_checked()
+        self.assert_live_pointer("#approval", points["#approval"])
+        expect(self.page.locator("#approval")).to_be_checked()
+        submit = "#event-form button[type=submit]"
+        self.assert_live_pointer(submit, points[submit])
+        expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
+        expect(self.page.locator("#item-status")).to_contain_text("Simulated status: unresolved.")
+        history = json.loads(self.pointer_state()["stored"])["events"]
+        self.assertEqual([event["type"] for event in history], ["submission", "issue"])
+        self.assertEqual(history[0], original[0])
+        broker = "#brokers .broker:nth-child(2)"
+        self.assert_live_pointer(broker, points[broker])
+        expect(self.page.locator("#broker-name")).to_have_text("Harbor Index")
+        self.assert_live_pointer("#export", points["#export"])
+        expect(self.page.locator("#data-title")).to_have_text("Preview synthetic export")
+        self.assertTrue(self.page.locator("#data-dialog").evaluate("node => node.matches(':modal')"))
+        self.page.mouse.click(**self.pointer_point("#close-dialog"))
+        if mode == "export":
+            saved = self.pointer_state()["stored"]
+            self.assert_live_pointer("#reset", points["#reset"])
+            self.assertEqual(self.pointer_state()["modal"], ["reset-dialog"])
+            self.assertEqual(self.pointer_state()["stored"], saved)
+            self.page.mouse.click(**self.pointer_point("#cancel-reset"))
+            self.assertEqual(self.pointer_state()["modal"], [])
+            self.assertEqual(self.pointer_state()["stored"], saved)
+        count = len(selectors)
+        print(f"Pointer-only {mode}: {count} background probes blocked with unchanged state; all {count} targets live after cancel", flush=True)
+
+    def test_export_modal_excludes_tested_background_pointer_input(self):
+        self.modal_pointer_check("export")
+
+    def test_import_modal_excludes_tested_background_pointer_input(self):
+        self.modal_pointer_check("import")
+
+    def test_reset_modal_excludes_tested_background_pointer_input(self):
+        self.modal_pointer_check("reset")
 
 
 if __name__ == "__main__":

@@ -142,12 +142,19 @@ class StorageUI(unittest.TestCase):
         expect(self.page.locator("#message")).to_have_text("Synthetic quota exceeded")
         expect(self.page.locator("#approval")).not_to_be_checked()
         expect(self.page.get_by_role("button", name="Record simulated event")).to_be_enabled()
+        expect(self.page.locator("#item-status")).to_contain_text("Simulated status: simulated-submission.")
+        expect(self.page.locator("#timeline li")).to_have_count(1)
+        expect(self.page.locator("#timeline li strong")).to_have_text("Simulated submission")
         self.assertEqual(self.exported_events(), before)
         self.page.reload()  # removes the injected failure and reopens persisted history
         expect(self.page.locator("#broker-name")).to_have_text("Cedar Directory")
         self.assertEqual(self.exported_events(), before)
         self.submit("awaiting")
         expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
+        expect(self.page.locator("#item-status")).to_contain_text("Simulated status: awaiting-simulated-confirmation.")
+        expect(self.page.locator("#timeline li strong")).to_have_text([
+            "Simulated submission", "Await simulated confirmation",
+        ])
         events = self.exported_events()
         self.assertEqual([event["type"] for event in events], ["submission", "awaiting"])
         self.assertEqual(events[0], before[0])

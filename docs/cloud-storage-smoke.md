@@ -51,14 +51,32 @@ Three browser checks passed on 2026-10-28:
 - A denied `localStorage` getter reports the error and disables controls.
   Confirming reset reports its failure without claiming recovery.
 - A quota failure after one successful event clears one-use approval, leaves
-  the exported history unchanged, and retains the same history after reload.
-  Retrying then appends the next valid event while retaining the original.
+  the visible status, timeline, and exported history unchanged, and retains the
+  same history after reload. Retrying then appends the next valid event while
+  retaining the original and advances the visible status and timeline.
 
 The unchanged Node suite also passed: 14 tests, 0 failures. Initial smoke
 assertions against the disabled fieldset were rejected by Playwright despite
 its disabled child controls. Assertions now check the actual user controls.
 That was a harness correction, not an application defect or a claimed TDD
 red/green product fix.
+
+## Independent review and source integrity
+
+Separate same-family Matt Pocock spec and standards reviewers inspected the
+change against `c3913bf`. Standards reported zero findings. Spec reported one
+low-severity coverage gap: the failed-write check needed visible status and
+timeline assertions in addition to exported history. Those assertions were
+added; the spec reviewer rechecked and marked the finding resolved with no new
+immediate issue. The updated browser suite passed all three checks in 4.311s.
+These are bounded reviews, not an exhaustive audit.
+
+PowerShell is unavailable in this runner, so `scripts/verify-foundation.ps1`
+was not executed. A Python equivalent checked all 263 preserved source files
+against manifest SHA-256, Git blob hashes, byte sizes, allowed file types,
+source membership, and catalog targets: all passed. Vendored sources are
+unchanged. This does not waive the repository's PowerShell verification step
+before any future publication; this task publishes nothing.
 
 ## Acceptance limits
 

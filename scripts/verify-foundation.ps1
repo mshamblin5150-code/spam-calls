@@ -13,7 +13,7 @@ foreach ($name in @('matt-pocock', 'pstack')) {
         }
         if ($seen.ContainsKey($path)) { throw "Duplicate manifest path: $($entry.path)" }
         $seen[$path] = $true
-        $item = Get-Item -LiteralPath $path
+        $item = Get-Item -LiteralPath $path -Force
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Unexpected link: $path" }
         $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
         $blob = git hash-object --no-filters -- $path
@@ -24,7 +24,7 @@ foreach ($name in @('matt-pocock', 'pstack')) {
             throw "Unexpected source file type: $($entry.path)"
         }
     }
-    $actual = @(Get-ChildItem -LiteralPath $sourceRoot -Recurse -File)
+    $actual = @(Get-ChildItem -LiteralPath $sourceRoot -Recurse -File -Force)
     if ($actual.Count -ne $seen.Count) { throw "Unmanifested source file in $name" }
     foreach ($item in $actual) {
         if (!$seen.ContainsKey($item.FullName)) { throw "Unmanifested source file: $($item.FullName)" }

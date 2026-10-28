@@ -45,8 +45,10 @@ Default domain/storage/server suite: `npm test`.
 
 Each modal scenario uses a fresh context and a 2000×1600 CSS viewport so the
 four target centers lie outside the foreground dialog rectangle and inside
-the viewport. All targets must be visible and enabled. A synthetic submission
-is recorded through the UI, then a valid issue command is prepared so a leaked
+the viewport. Immediately before each blocked click, current control and dialog
+bounds are re-read: the recorded point must still lie inside its intended
+control and outside the current dialog. All targets must be visible and enabled.
+A synthetic submission is recorded through the UI, then a valid issue command is prepared so a leaked
 submit would have a real observable persistence effect.
 
 | Background target | Required post-cancel liveness |
@@ -90,7 +92,7 @@ in each scenario. It did not demonstrate a product defect or require a product
 fix. This is behavior coverage of an already implemented browser boundary,
 not a claimed test-first product red/green fix.
 
-The full browser suite subsequently passed all nine tests in 14.370s, including
+The full browser suite subsequently passed all nine tests in 14.362s, including
 the six previously merged storage/import checks and these three pointer checks.
 The unchanged Node suite also passed: 14 tests, 0 failures. No PowerShell runtime
 was downloaded or executed for this slice; verifier inputs are unchanged.

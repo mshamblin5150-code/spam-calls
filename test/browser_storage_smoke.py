@@ -354,9 +354,18 @@ class StorageUI(unittest.TestCase):
         self.assertTrue(dialog.evaluate("node => node.matches(':modal')"))
         before = self.pointer_state()
         self.assertEqual(before["modal"], [dialog_id])
-        rectangle = dialog.bounding_box()
         for selector, point in points.items():
             with self.subTest(mode=mode, background_control=selector):
+                control = self.page.locator(selector)
+                expect(control).to_be_visible()
+                expect(control).to_be_enabled()
+                current = control.bounding_box()
+                rectangle = dialog.bounding_box()
+                self.assertIsNotNone(current)
+                self.assertIsNotNone(rectangle)
+                self.assertTrue(current["x"] < point["x"] < current["x"] + current["width"]
+                                and current["y"] < point["y"] < current["y"] + current["height"],
+                                "Recorded point no longer lies inside the current background control")
                 self.assertFalse(rectangle["x"] <= point["x"] <= rectangle["x"] + rectangle["width"]
                                  and rectangle["y"] <= point["y"] <= rectangle["y"] + rectangle["height"],
                                  "Target center is covered by the dialog, not an outside-dialog probe")

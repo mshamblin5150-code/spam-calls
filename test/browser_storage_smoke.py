@@ -160,6 +160,98 @@ class StorageUI(unittest.TestCase):
         expect(self.page.locator("#message")).to_contain_text("Simulated event saved")
         self.assertEqual(len(self.exported_events()), 1)
 
+    def test_390px_keyboard_submission_rejects_mismatch_and_requires_fresh_approval(self):
+        self.page.set_viewport_size({"width": 390, "height": 844})
+        self.open_app()
+        self.assertLessEqual(self.page.evaluate("document.documentElement.scrollWidth"), 390)
+        self.assertIsNone(self.stored_text())
+        self.page.evaluate("""() => {
+            window.invalidControls = [];
+            document.addEventListener('invalid', event => {
+                window.invalidControls.push({id: event.target.id, trusted: event.isTrusted});
+            }, {capture: true, passive: true});
+        }""")
+
+        def key_to(key, selector):
+            self.page.keyboard.press(key)
+            expect(self.page.locator(selector)).to_be_focused()
+            expect(self.page.locator(selector)).to_be_in_viewport()
+
+        # Real keyboard input from initial document focus; no click/focus shortcut.
+        for selector in ["#export", "#import", "#reset", "#case",
+                         "#brokers .broker:nth-child(1)", "#brokers .broker:nth-child(2)",
+                         "#identity"]:
+            key_to("Tab", selector)
+        self.page.keyboard.press("End")  # Demo Case B mismatches selected Case A.
+        expect(self.page.locator("#identity")).to_have_value("demo-b")
+        key_to("Tab", "#event")
+        key_to("Tab", "#artifact")
+        self.page.keyboard.press("End")
+        expect(self.page.locator("#artifact")).to_have_value("cedar-submission")
+        key_to("Tab", "#approval")
+        self.page.keyboard.press("Space")
+        expect(self.page.locator("#approval")).to_be_checked()
+        key_to("Tab", "#event-form button[type=submit]")
+        self.page.keyboard.press("Enter")
+        expect(self.page.locator("#message")).to_have_text("Select the matching demo identity.")
+        expect(self.page.locator("#approval")).not_to_be_checked()
+        self.assertIsNone(self.stored_text())
+        expect(self.page.locator("#timeline li")).to_have_text("No simulated events yet.")
+
+        for selector in ["#approval", "#artifact", "#event", "#identity"]:
+            key_to("Shift+Tab", selector)
+        self.page.keyboard.press("Home")
+        self.page.keyboard.press("ArrowDown")
+        expect(self.page.locator("#identity")).to_have_value("demo-a")
+        for selector in ["#event", "#artifact", "#approval", "#event-form button[type=submit]"]:
+            key_to("Tab", selector)
+        # Correct identity still cannot save with the consumed approval unchecked.
+        self.page.keyboard.press("Enter")
+        expect(self.page.locator("#approval")).to_be_focused()
+        self.assertEqual(self.page.evaluate("window.invalidControls"),
+                         [{"id": "approval", "trusted": True}])
+        self.assertIsNone(self.stored_text())
+        expect(self.page.locator("#timeline li")).to_have_text("No simulated events yet.")
+
+        self.page.keyboard.press("Space")
+        expect(self.page.locator("#approval")).to_be_checked()
+        key_to("Tab", "#event-form button[type=submit]")
+        self.page.keyboard.press("Enter")
+        self.assert_submission_visible()
+        expect(self.page.locator("#identity")).to_have_value("")
+        expect(self.page.locator("#approval")).not_to_be_checked()
+        saved = json.loads(self.stored_text())["events"]
+        self.assertEqual(len(saved), 1)
+        self.assertEqual((saved[0]["caseId"], saved[0]["identity"], saved[0]["approved"]),
+                         ("demo-a", "demo-a", True))
+        self.assertLessEqual(self.page.evaluate("document.documentElement.scrollWidth"), 390)
+        self.page.reload()
+        self.assert_submission_visible()
+        self.assertEqual(json.loads(self.stored_text())["events"], saved)
+
+    def test_form_context_changes_clear_one_use_approval(self):
+        self.open_app()
+        changes = [
+            ("identity", lambda: self.page.locator("#identity").select_option("demo-b")),
+            ("event", lambda: self.page.locator("#event").select_option("awaiting")),
+            ("evidence", lambda: self.page.locator("#artifact").select_option("")),
+            ("case", lambda: self.page.locator("#case").select_option("demo-b")),
+            ("broker", lambda: self.page.locator("#brokers .broker:nth-child(2)").click()),
+        ]
+        for context, change in changes:
+            with self.subTest(context=context):
+                self.page.locator("#case").select_option("demo-a")
+                self.page.locator("#brokers .broker:nth-child(1)").click()
+                self.page.locator("#identity").select_option("demo-a")
+                self.page.locator("#event").select_option("submission")
+                self.page.locator("#artifact").select_option("cedar-submission")
+                self.page.locator("#approval").check()
+                expect(self.page.locator("#approval")).to_be_checked()
+                change()
+                expect(self.page.locator("#approval")).not_to_be_checked()
+                self.assertIsNone(self.stored_text())
+                expect(self.page.locator("#timeline li")).to_have_text("No simulated events yet.")
+
     def test_valid_history_reset_cancel_confirm_reload_and_reopen(self):
         self.open_app()
         self.submit()

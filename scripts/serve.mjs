@@ -7,6 +7,8 @@ const routes = new Map([
   ['/app/ui.mjs', ['../app/ui.mjs', 'text/javascript; charset=utf-8']],
   ['/app/planner.mjs', ['../app/planner.mjs', 'text/javascript; charset=utf-8']],
   ['/app/storage.mjs', ['../app/storage.mjs', 'text/javascript; charset=utf-8']],
+  ['/app/catalog-selection.mjs', ['../app/catalog-selection.mjs', 'text/javascript; charset=utf-8']],
+  ['/app/catalog-demo.mjs', ['../app/catalog-demo.mjs', 'text/javascript; charset=utf-8']],
 ]);
 export function createServer() {
   return http.createServer(async (request, response) => {

@@ -1,11 +1,11 @@
 # Catalog report timing
 
-Status: proposed standalone consumer; planner UI integration remains separate.
+Status: accepted consumer contract; the demo uses closed synthetic references.
 
 `app/catalog-selection.mjs` selects an organization and its caller-supplied
 evidence references from a registry-observation snapshot. It performs no
-acquisition, persistence, or destination activation. The planner UI and its
-allowlisted file server do not load this module.
+acquisition, persistence, or destination activation. The demo UI loads it through
+`app/catalog-demo.mjs`, which supplies invented references for the two broker fixtures.
 
 A historical report may state an observation date or completion minute without
 establishing an exact report timestamp. Requiring an exact `reportedAt` would
@@ -45,4 +45,5 @@ for personal-data workflows or external actions.
 Synthetic tests exercise `createCatalogSelection` and the selected evidence
 references. They cover legacy exact timestamps, unknown timing, date-only and
 minute precision, malformed input, and retained occurrence checks. They do not
-establish UI behavior, native acceptance, or live integration.
+establish native acceptance or live integration. The optional browser checks
+separately verify the synthetic panel and unchanged storage behavior.

@@ -1,5 +1,6 @@
 import { cases, brokers, artifacts, eventKinds, statusFor, exportState } from './planner.mjs';
 import { createStore, resetStore } from './storage.mjs';
+import { selectDemoCatalog } from './catalog-demo.mjs';
 
 const $ = id => document.getElementById(id);
 let store;
@@ -29,6 +30,20 @@ function render() {
   const state = store?.state;
   $('broker-name').textContent = broker.label;
   $('broker-domain').textContent = broker.domain;
+  const reference = selectDemoCatalog(brokerId);
+  const report = reference.ok ? reference.broker.evidenceReferences.historicalResearch[0] : null;
+  const timing = report?.timing;
+  $('report-timing').replaceChildren(...[
+    ['Report time', report?.reportedAt ?? 'Unknown'],
+    ['Observed on', timing?.observedDate ?? 'Unknown'],
+    ['Completed on', timing?.completedDate ?? 'Unknown'],
+    ['Completion time', timing?.completedMinuteUTC ? `${timing.completedMinuteUTC} UTC (minute precision)` : 'Unknown'],
+  ].flatMap(([label, value]) => {
+    const term = document.createElement('dt'); term.textContent = label;
+    const description = document.createElement('dd'); description.textContent = value;
+    return [term, description];
+  }));
+  $('report-note').textContent = report ? 'Invented evidence only. All destinations remain inactive.' : 'Synthetic reference unavailable. All destinations remain inactive.';
   $('event-fields').disabled = !store;
   $('export').disabled = !store;
   $('import').disabled = !store;

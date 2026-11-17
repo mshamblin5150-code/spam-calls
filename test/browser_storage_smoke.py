@@ -78,6 +78,23 @@ class StorageUI(unittest.TestCase):
         self.page.goto(self.origin)
         expect(self.page.locator("#broker-name")).to_have_text("Cedar Directory")
 
+    def test_synthetic_report_timing_preserves_unknowns_and_completion_precision(self):
+        for width, height in [(1280, 900), (390, 844)]:
+            self.page.set_viewport_size({"width": width, "height": height})
+            self.open_app()
+            expect(self.page.locator("#report-heading")).to_have_text("Synthetic report reference")
+            expect(self.page.locator("#report-timing dd")).to_have_text([
+                "Unknown", "2026-01-01", "2026-01-02", "09:30 UTC (minute precision)",
+            ])
+            expect(self.page.locator("#report-reference a")).to_have_count(0)
+            self.assertIsNone(self.stored_text())
+            self.page.locator("#brokers .broker:nth-child(2)").click()
+            expect(self.page.locator("#broker-name")).to_have_text("Harbor Index")
+            expect(self.page.locator("#report-timing dd")).to_have_text(["Unknown"] * 4)
+            expect(self.page.locator("#report-reference")).to_contain_text("Invented evidence only")
+            expect(self.page.locator("#report-reference a")).to_have_count(0)
+            self.assertIsNone(self.stored_text())
+
     def submit(self, event="submission"):
         self.page.locator("#identity").select_option("demo-a")
         self.page.locator("#event").select_option(event)
